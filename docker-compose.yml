@@ -1,0 +1,203 @@
+version: '3.9'
+services:
+  wireguard:
+  # https://github.com/linuxserver/docker-wireguard
+    image: linuxserver/wireguard:amd64-${wireguard_version}
+    env_file: .env
+    container_name: wireguard1
+    networks: 
+      - plex
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - /usr/src:/usr/src
+      - /lib/modules:/lib/modules
+      - ${config_folder}/wireguard:/config/
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    ports:
+      - 9091:9091 # transmission
+      - 51413:51413 # transmission
+      - 51413:51413/udp # transmission
+    healthcheck:
+      test: ["CMD", "curl", "-f", "ifconfig.me"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  plex:
+  # https://github.com/linuxserver/docker-plex
+    image: linuxserver/plex:amd64-${plex_version}
+    env_file: .env
+    container_name: plex1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+      - PLEX_CLAIM=claim-aH6J9xcRTWZSxALJCuGW
+    volumes:
+      - ${config_folder}/plex:/config
+      - ${media_folder}/series:/tv
+      - ${media_folder}/movies:/movies
+    ports :
+      - 32400:32400
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+      - 32469:32469
+
+#  qbittorrent:
+#    image: linuxserver/qbittorrent:amd64-${qbittorrent_version}
+#    container_name: qbittorrent
+#    depends_on:
+#      - wireguard
+#    network_mode: container:wireguard
+#    restart: unless-stopped
+#    environment:
+#      - PUID=${puid}
+#      - GUID=${puid}
+#      - TZ=${timezone}
+#    volumes:
+#      - ${config_folder}/qbittorrent:/config
+#      - ${downloads_folder}/finished:/downloads
+
+  transmission:
+    # https://github.com/linuxserver/docker-transmission
+    image: linuxserver/transmission:amd64-version-${transmission_version}
+    env_file: .env
+    container_name: transmission1
+    network_mode: container:wireguard1
+    depends_on:
+      - wireguard
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/transmission:/config
+      - ${downloads_folder}:/downloads
+      - ${downloads_folder}/torrent_files:/watch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "ifconfig.me"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  prowlarr:
+    # https://github.com/linuxserver/docker-prowlarr
+    image: linuxserver/prowlarr:amd64-${prowlarr_version}
+    env_file: .env
+    container_name: prowlarr1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/prowlarr:/config
+    ports :
+      - 9696:9696
+
+#  jackett:
+    # https://github.com/linuxserver/docker-jackett
+#    image: linuxserver/jackett:amd64-${jackett_version}
+#    container_name: jackett
+#    network_mode: container:wireguard
+#    depends_on:
+#      - wireguard
+#    restart: unless-stopped
+#    environment:
+#      - PUID=${puid}
+#      - GUID=${guid}
+#      - TZ=${timezone}
+#    volumes:
+#      - ${config_folder}/jackett:/config
+#      - ${downloads_folder}/torrent_files:/downloads
+  sonarr:
+    # https://github.com/linuxserver/docker-sonarr
+    image: linuxserver/sonarr:amd64-${sonarr_version}
+    env_file: .env
+    container_name: sonarr1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/sonarr:/config
+      - ${media_folder}/series:/tv
+      - ${downloads_folder}:/downloads
+    ports :
+      - 8989:8989
+
+  radarr:
+    # https://github.com/linuxserver/docker-radarr
+    image: linuxserver/radarr:amd64-${radarr_version}
+    env_file: .env
+    container_name: radarr1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/radarr:/config
+      - ${media_folder}/movies:/movies
+      - ${downloads_folder}:/downloads
+    ports :
+      - 7878:7878
+
+  flaresolverr:
+    image: ngosang/flaresolverr:${flaresolverr_version}
+    env_file: .env
+    container_name: flaresolverr1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/prowlarr:/config
+    ports :
+      - 8191:8191
+
+  overseerr:
+    image: linuxserver/overseerr:amd64-${overseerr_version}
+    env_file: .env
+    container_name: overseerr1
+    networks: 
+      - plex
+    restart: unless-stopped
+    environment:
+      - PUID=${puid}
+      - GUID=${guid}
+      - TZ=${timezone}
+    volumes:
+      - ${config_folder}/overseerr:/config
+    ports :
+      - 5055:5055
+      
+networks:
+  plex:
+    name: plex
+    driver: bridge
