@@ -1,7 +1,6 @@
 version: '3.9'
 services:
   wireguard:
-  # https://github.com/linuxserver/docker-wireguard
     image: linuxserver/wireguard:amd64-${wireguard_version}
     env_file: .env
     container_name: wireguard1
@@ -34,7 +33,6 @@ services:
       start_period: 20s
 
   plex:
-  # https://github.com/linuxserver/docker-plex
     image: linuxserver/plex:amd64-${plex_version}
     env_file: .env
     container_name: plex1
@@ -58,23 +56,7 @@ services:
       - 32414:32414/udp
       - 32469:32469
 
-#  qbittorrent:
-#    image: linuxserver/qbittorrent:amd64-${qbittorrent_version}
-#    container_name: qbittorrent
-#    depends_on:
-#      - wireguard
-#    network_mode: container:wireguard
-#    restart: unless-stopped
-#    environment:
-#      - PUID=${puid}
-#      - GUID=${puid}
-#      - TZ=${timezone}
-#    volumes:
-#      - ${config_folder}/qbittorrent:/config
-#      - ${downloads_folder}/finished:/downloads
-
   transmission:
-    # https://github.com/linuxserver/docker-transmission
     image: linuxserver/transmission:amd64-version-${transmission_version}
     env_file: .env
     container_name: transmission1
@@ -98,7 +80,6 @@ services:
       start_period: 20s
 
   prowlarr:
-    # https://github.com/linuxserver/docker-prowlarr
     image: linuxserver/prowlarr:amd64-${prowlarr_version}
     env_file: .env
     container_name: prowlarr1
@@ -114,23 +95,7 @@ services:
     ports :
       - 9696:9696
 
-#  jackett:
-    # https://github.com/linuxserver/docker-jackett
-#    image: linuxserver/jackett:amd64-${jackett_version}
-#    container_name: jackett
-#    network_mode: container:wireguard
-#    depends_on:
-#      - wireguard
-#    restart: unless-stopped
-#    environment:
-#      - PUID=${puid}
-#      - GUID=${guid}
-#      - TZ=${timezone}
-#    volumes:
-#      - ${config_folder}/jackett:/config
-#      - ${downloads_folder}/torrent_files:/downloads
   sonarr:
-    # https://github.com/linuxserver/docker-sonarr
     image: linuxserver/sonarr:amd64-${sonarr_version}
     env_file: .env
     container_name: sonarr1
@@ -149,7 +114,6 @@ services:
       - 8989:8989
 
   radarr:
-    # https://github.com/linuxserver/docker-radarr
     image: linuxserver/radarr:amd64-${radarr_version}
     env_file: .env
     container_name: radarr1
