@@ -14,6 +14,7 @@ services:
       - PUID=${puid}
       - GUID=${guid}
       - TZ=${timezone}
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
     volumes:
       - /usr/src:/usr/src
       - /lib/modules:/lib/modules
