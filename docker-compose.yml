@@ -181,21 +181,21 @@ services:
     ports :
       - 8191:8191
 
-  overseerr:
-    image: linuxserver/overseerr:amd64-${overseerr_version}
-    env_file: .env
-    container_name: overseerr1
-    networks: 
-      - plex
-    restart: unless-stopped
-    environment:
-      - PUID=${puid}
-      - GUID=${guid}
-      - TZ=${timezone}
-    volumes:
-      - ${config_folder}/overseerr:/config
-    ports :
-      - 5055:5055
+#  overseerr:
+#    image: linuxserver/overseerr:amd64-${overseerr_version}
+#    env_file: .env
+#    container_name: overseerr1
+#    networks: 
+#      - plex
+#    restart: unless-stopped
+#    environment:
+#      - PUID=${puid}
+#      - GUID=${guid}
+#      - TZ=${timezone}
+#    volumes:
+#      - ${config_folder}/overseerr:/config
+#    ports :
+#      - 5055:5055
       
 networks:
   plex:
