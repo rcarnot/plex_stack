@@ -46,6 +46,7 @@ services:
       - GUID=${guid}
       - TZ=${timezone}
       - PLEX_CLAIM=claim-aH6J9xcRTWZSxALJCuGW
+      - 'ADVERTISE_IP=http://$IP_ADDRESS:32400/,http://plex.rdyconnect.local/,http://plex.local/'
     volumes:
       - ${config_folder}/plex:/config
       - ${media_folder}/series:/tv
